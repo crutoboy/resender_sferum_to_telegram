@@ -30,7 +30,7 @@ def main(resp_from_vk: dict):
 
 def iter_messages(messages: dict, profiles: dict, forward: bool = False):
     for message in messages:
-        message_handler(message, profiles)
+        message_handler(message, profiles, forward)
     
 def message_handler(message: dict, profiles: dict, forward: bool = False):
     fwd_messages = message.get('fwd_messages', [])
