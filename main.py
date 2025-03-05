@@ -8,7 +8,7 @@ import telebot
 from telebot import types
 
 import SferumAPI
-from config import TG_TOKEN, REMIXDSID_TOKEN_TO_SFERUM, SFERUM_TARGET_PEER_ID, TG_TARGET_CHAT_ID, DIR_FOR_LOG_UNKNOWN_TYPE_ATTACHMENTS, UPDATE_AUTH_INTERVAL
+from config import TG_TOKEN, REMIXDSID_TOKEN_TO_SFERUM, SFERUM_TARGET_PEER_ID, TG_TARGET_CHAT_ID, DIR_FOR_LOG_UNKNOWN_TYPE_ATTACHMENTS, UPDATE_AUTH_INTERVAL, CHECK_NEW_MESSAGE_INTERVAL
 
 
 bot = telebot.TeleBot(TG_TOKEN)
@@ -126,7 +126,7 @@ if __name__ == '__main__':
             update_auth(api)
             resp = api.messages.execution_vkscript(script_from_get_unread_message).get('response')
             main(resp)
-            time.sleep(0.5)
+            time.sleep(CHECK_NEW_MESSAGE_INTERVAL)
         except Exception as error:
             timestamp = datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
             print(timestamp)
