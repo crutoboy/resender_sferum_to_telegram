@@ -8,12 +8,12 @@ import telebot
 from telebot import types
 
 import SferumAPI
-import main_message_handler
-from config import TG_TOKEN, REMIXDSID_TOKEN_TO_SFERUM, SFERUM_TARGET_PEER_ID, TG_TARGET_CHAT_ID, DIR_FOR_LOG_UNKNOWN_TYPE_ATTACHMENTS
+from config import TG_TOKEN, REMIXDSID_TOKEN_TO_SFERUM, SFERUM_TARGET_PEER_ID, TG_TARGET_CHAT_ID, DIR_FOR_LOG_UNKNOWN_TYPE_ATTACHMENTS, UPDATE_AUTH_INTERVAL
 
 
 bot = telebot.TeleBot(TG_TOKEN)
 api = SferumAPI.SferumAPI(remixdsid=REMIXDSID_TOKEN_TO_SFERUM)
+last_update_vk_auth = datetime.now()
 
 with open('./vk_scripts/get_unread_msg_from_peer.js', 'r') as file:
     script_from_get_unread_message = f"var peer_id = {SFERUM_TARGET_PEER_ID};\n" + file.read()
@@ -111,6 +111,11 @@ def send_log_about_unknown(attachments: dict):
     with open(path_to_file, 'r') as file:
         bot.send_document(TG_TARGET_CHAT_ID, file, caption='отправлено не поддерживание вложение. сырой объект в этом файле и на сервере')
 
+def update_auth(api_object: SferumAPI.SferumAPI):
+    global last_update_vk_auth
+    if (datetime.now() - last_update_vk_auth).total_seconds() > UPDATE_AUTH_INTERVAL:
+        api_object.users.authorize()
+        last_update_vk_auth = datetime.now()
 
 # resp = api.messages.execution_vkscript(script_from_get_unread_message).get('response')
 # print(resp)
@@ -118,10 +123,11 @@ def send_log_about_unknown(attachments: dict):
 if __name__ == '__main__':
     while True:
         try:
+            update_auth(api)
             resp = api.messages.execution_vkscript(script_from_get_unread_message).get('response')
             main(resp)
             time.sleep(0.5)
         except Exception as error:
             timestamp = datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
             print(timestamp)
-            print(error.with_traceback())
+            print(error)
